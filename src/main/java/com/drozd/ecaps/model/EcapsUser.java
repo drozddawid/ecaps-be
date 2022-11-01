@@ -1,5 +1,6 @@
 package com.drozd.ecaps.model;
 
+import com.drozd.ecaps.model.space.Space;
 import com.drozd.ecaps.utils.GoogleIdTokenPayloadUtils;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import lombok.*;

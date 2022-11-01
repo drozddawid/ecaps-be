@@ -1,5 +1,6 @@
-package com.drozd.ecaps.model;
+package com.drozd.ecaps.model.space;
 
+import com.drozd.ecaps.model.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 
@@ -9,10 +10,12 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-@Entity
-@Table(indexes = {
-        @Index(name = "spaceHash_index", columnList = "space_hash"),
-        @Index(name = "invitationHash_index", columnList = "invitation_hash")}
+@Entity()
+@Table(
+        indexes = {
+                @Index(name = "spaceHash_index", columnList = "spaceHash"),
+                @Index(name = "invitationHash_index", columnList = "invitationHash")
+        }
 )
 @Getter
 @Setter
@@ -30,7 +33,7 @@ public class Space {
 
     private LocalDate createdOn;
 
-    private boolean hasGoogleDriveConfigured = false;
+    private boolean googleDriveConfigured = false;
 
     private String googleDriveApiKey = null;
 
@@ -46,7 +49,7 @@ public class Space {
     @ToString.Exclude
     private Set<EcapsUser> users = new HashSet<>();
 
-    @OneToMany()
+    @OneToMany(cascade = {CascadeType.ALL})
     @ToString.Exclude
     private Set<SpaceManager> spaceManagers = new HashSet<>();
 
@@ -67,7 +70,18 @@ public class Space {
     public Space(String name) {
         this.name = name;
         this.createdOn = LocalDate.now();
+    }
 
+    public void addSpaceManager(EcapsUser user, SpaceManagerRole role) {
+        spaceManagers.add(
+                new SpaceManager()
+                        .setSpace(this)
+                        .setUser(user)
+                        .setRole(role));
+    }
+
+    public void addUser(EcapsUser ecapsUser) {
+        users.add(ecapsUser);
     }
 
     @Override
