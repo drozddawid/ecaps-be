@@ -1,5 +1,6 @@
 package com.drozd.ecaps.model;
 
+import com.drozd.ecaps.model.space.Space;
 import lombok.*;
 import org.hibernate.Hibernate;
 

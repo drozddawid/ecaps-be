@@ -1,11 +1,14 @@
 package com.drozd.ecaps.service;
 
 import com.drozd.ecaps.model.EcapsUser;
+import com.drozd.ecaps.model.space.dto.SpaceInfoDto;
 import com.drozd.ecaps.repository.EcapsUserRepository;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -23,5 +26,12 @@ public class EcapsUserService {
             var user = new EcapsUser(googleIdTokenPayload);
             userRepository.save(user);
         }
+    }
+
+    public List<SpaceInfoDto> getUserSpaces(String email) {
+        return getUser(email)
+                .map(EcapsUser::getSpaces)
+                .map(spaces -> spaces.stream().map(SpaceInfoDto::new).toList())
+                .orElseThrow(() -> new NoSuchElementException("User with email " + email + " not found."));
     }
 }
