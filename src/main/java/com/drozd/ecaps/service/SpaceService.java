@@ -1,9 +1,12 @@
 package com.drozd.ecaps.service;
 
-import com.drozd.ecaps.model.EcapsUser;
+import com.drozd.ecaps.exception.UserIsNotMemberOfSpaceException;
+import com.drozd.ecaps.exception.badargument.SpaceNotFoundException;
+import com.drozd.ecaps.exception.badargument.UserNotFoundException;
 import com.drozd.ecaps.model.SpaceManagerRole;
 import com.drozd.ecaps.model.space.Space;
 import com.drozd.ecaps.model.space.dto.SpaceInfoDto;
+import com.drozd.ecaps.model.user.dto.EcapsUser;
 import com.drozd.ecaps.repository.SpaceRepository;
 import com.drozd.ecaps.utils.HashGenerationUtils;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -21,16 +24,37 @@ public class SpaceService {
     private final EcapsUserService userService;
     private final SpaceRepository spaceRepository;
 
-    public SpaceInfoDto createSaveAndGetSpace(String spaceName, String ownerEmail) {
-        return userService.getUser(ownerEmail)
-                .map(u -> createSaveAndGetSpace(spaceName, u))
-                .map(SpaceInfoDto::new)
-                .orElseThrow(() ->
-                        new NoSuchElementException("User with email " + ownerEmail + " doesn't exist."));
+    public SpaceInfoDto createSaveAndGetSpace(String spaceName, String ownerEmail) throws UserNotFoundException {
+        var user = userService.getUser(ownerEmail);
+        var space = createSaveAndGetSpace(spaceName, user);
+        return new SpaceInfoDto(space);
     }
 
-    public List<SpaceInfoDto> getSpacesOwnedByUser(String ownerEmail) {
+    public SpaceInfoDto getSpaceInfo(String spaceHash, String askingUserEmail) throws UserIsNotMemberOfSpaceException {
+        return new SpaceInfoDto(getUserSpaceOrThrowIfUserIsNotMember(spaceHash, askingUserEmail));
+    }
+
+    public Space getUserSpaceOrThrowIfUserIsNotMember(String spaceHash, String askingUserEmail) throws UserIsNotMemberOfSpaceException {
+        return getUserSpaces(askingUserEmail).stream()
+                .filter(s -> s.getSpaceHash().equals(spaceHash))
+                .findFirst()
+                .orElseThrow(() -> new UserIsNotMemberOfSpaceException("User " + askingUserEmail + " is not member of space with hash" + spaceHash));
+    }
+
+    public List<SpaceInfoDto> getSpacesInfoOwnedByUser(String ownerEmail) {
         return spaceRepository.getSpacesOwnedByUser(ownerEmail).stream().map(SpaceInfoDto::new).toList();
+    }
+
+    public List<Space> getUserSpaces(String ownerEmail) {
+        return spaceRepository.getSpacesWhereUserIsMember(ownerEmail);
+    }
+
+    public Space getSpaceById(Long id) throws SpaceNotFoundException {
+        try {
+            return spaceRepository.getReferenceById(id);
+        } catch (EntityNotFoundException e) {
+            throw new SpaceNotFoundException("Space with id " + id + " not found.", e);
+        }
     }
 
     private Space createSaveAndGetSpace(String spaceName, EcapsUser owner) {
@@ -51,5 +75,4 @@ public class SpaceService {
     private String getUniqueSpaceHash() {
         return HashGenerationUtils.getUniqueHash(spaceRepository::existsBySpaceHash, 30);
     }
-
 }

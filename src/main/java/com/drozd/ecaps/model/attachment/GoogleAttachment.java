@@ -1,4 +1,4 @@
-package com.drozd.ecaps.model;
+package com.drozd.ecaps.model.attachment;
 
 import lombok.*;
 import org.hibernate.Hibernate;
@@ -15,7 +15,7 @@ import java.util.Objects;
 @ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class Attachment {
+public class GoogleAttachment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -26,7 +26,7 @@ public class Attachment {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Attachment that = (Attachment) o;
+        GoogleAttachment that = (GoogleAttachment) o;
         return id != null && Objects.equals(id, that.id);
     }
 
