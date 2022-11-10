@@ -1,9 +1,12 @@
-package com.drozd.ecaps.model;
+package com.drozd.ecaps.model.comment;
 
+import com.drozd.ecaps.model.attachment.GoogleAttachment;
+import com.drozd.ecaps.model.attachment.dto.GoogleAttachmentDto;
+import com.drozd.ecaps.model.post.Post;
+import com.drozd.ecaps.model.user.dto.EcapsUser;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.List;
@@ -25,5 +28,11 @@ public class Comment {
     @Column(length = 65535, columnDefinition = "TEXT")
     private String content;
     @OneToMany()
-    private List<Attachment> attachments;
+    private List<GoogleAttachment> googleAttachments;
+
+    public List<GoogleAttachmentDto> getGoogleAttachmentsDto() {
+        return this.getGoogleAttachments().stream()
+                .map(GoogleAttachmentDto::new)
+                .toList();
+    }
 }

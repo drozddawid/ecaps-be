@@ -1,14 +1,20 @@
-package com.drozd.ecaps.model;
+package com.drozd.ecaps.model.post;
 
+import com.drozd.ecaps.model.attachment.GoogleAttachment;
+import com.drozd.ecaps.model.attachment.dto.GoogleAttachmentDto;
+import com.drozd.ecaps.model.comment.Comment;
 import com.drozd.ecaps.model.space.Space;
+import com.drozd.ecaps.model.tag.EcapsTag;
+import com.drozd.ecaps.model.user.dto.EcapsUser;
 import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(indexes = {
@@ -26,7 +32,7 @@ public class Post {
     @Column(length = 65535, columnDefinition = "TEXT")
     private String content;
     @Column(name = "created_on")
-    private LocalDate createdOn;
+    private LocalDateTime createdOn;
 
     @ManyToOne()
     @JoinColumn(name = "space_id")
@@ -48,7 +54,10 @@ public class Post {
     @ToString.Exclude
     private Set<Comment> comments = new HashSet<>();
 
-
+    @OneToMany()
+    @JoinColumn(name = "g_attachment_id")
+    @ToString.Exclude
+    private Set<GoogleAttachment> googleAttachments = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {
@@ -61,5 +70,11 @@ public class Post {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public Set<GoogleAttachmentDto> getGoogleAttachmentsDto() {
+        return this.getGoogleAttachments().stream()
+                .map(GoogleAttachmentDto::new)
+                .collect(Collectors.toSet());
     }
 }

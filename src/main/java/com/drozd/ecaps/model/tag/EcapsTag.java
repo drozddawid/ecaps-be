@@ -1,4 +1,4 @@
-package com.drozd.ecaps.model;
+package com.drozd.ecaps.model.tag;
 
 import lombok.*;
 import org.hibernate.Hibernate;

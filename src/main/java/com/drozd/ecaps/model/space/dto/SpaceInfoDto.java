@@ -1,8 +1,10 @@
 package com.drozd.ecaps.model.space.dto;
 
 import com.drozd.ecaps.model.space.Space;
+import com.drozd.ecaps.model.tag.EcapsTag;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record SpaceInfoDto(
         Long id,
@@ -12,7 +14,8 @@ public record SpaceInfoDto(
         boolean hasGoogleDriveConfigured,
         String googleDriveApiKey,
         String invitationHash,
-        String spaceHash
+        String spaceHash,
+        List<EcapsTag> allowedTags
 ) {
     public SpaceInfoDto(Space space) {
         this(
@@ -23,6 +26,7 @@ public record SpaceInfoDto(
                 space.isGoogleDriveConfigured(),
                 space.getGoogleDriveApiKey(),
                 space.getInvitationHash(),
-                space.getSpaceHash());
+                space.getSpaceHash(),
+                space.getAllowedTags().stream().toList());
     }
 }

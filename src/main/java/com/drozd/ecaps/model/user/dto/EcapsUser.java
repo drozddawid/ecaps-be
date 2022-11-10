@@ -1,5 +1,8 @@
-package com.drozd.ecaps.model;
+package com.drozd.ecaps.model.user.dto;
 
+import com.drozd.ecaps.model.SpaceManager;
+import com.drozd.ecaps.model.comment.Comment;
+import com.drozd.ecaps.model.post.Post;
 import com.drozd.ecaps.model.space.Space;
 import com.drozd.ecaps.utils.GoogleIdTokenPayloadUtils;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;

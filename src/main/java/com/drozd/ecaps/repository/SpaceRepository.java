@@ -24,6 +24,21 @@ public interface SpaceRepository extends JpaRepository<Space, Long>,
         return list;
     }
 
+    default List<Space> getSpacesWhereUserIsMember(String email) {
+        var list = new ArrayList<Space>();
+        findAll(isSpaceMember(email)).forEach(list::add);
+        return list;
+    }
+
+    default List<Space> getSpacesManagedByUser(String email) {
+        var list = new ArrayList<Space>();
+        findAll(isSpaceManager(email)).forEach(list::add);
+        return list;
+    }
+
+    default BooleanExpression isSpaceMember(String email) {
+        return QSpace.space.users.any().email.eq(email);
+    }
     default BooleanExpression isSpaceManager(String email) {
         return QSpace.space.spaceManagers.any().user.email.eq(email);
     }

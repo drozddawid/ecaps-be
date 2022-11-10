@@ -1,5 +1,7 @@
 package com.drozd.ecaps.controller;
 
+import com.drozd.ecaps.exception.UserIsNotMemberOfSpaceException;
+import com.drozd.ecaps.exception.badargument.UserNotFoundException;
 import com.drozd.ecaps.model.space.dto.SpaceInfoDto;
 import com.drozd.ecaps.service.EcapsUserService;
 import com.drozd.ecaps.service.SpaceService;
@@ -9,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RestController()
 @RequestMapping("/spaces")
@@ -19,23 +20,30 @@ public class SpaceController {
     private final EcapsUserService userService;
 
     @PostMapping()
-    public ResponseEntity<SpaceInfoDto> createSpace(@RequestBody String spaceName) throws NoSuchElementException {
+    public ResponseEntity<SpaceInfoDto> createSpace(@RequestBody String spaceName) throws UserNotFoundException {
         var createdSpace =
                 spaceService.createSaveAndGetSpace(spaceName, SecurityContextUtils.getCurrentUserEmail());
         return ResponseEntity.ok().body(createdSpace);
     }
 
-    @GetMapping()
-    public ResponseEntity<List<SpaceInfoDto>> getMySpaces() throws NoSuchElementException {
+    @GetMapping("/my")
+    public ResponseEntity<List<SpaceInfoDto>> getMySpaces() throws UserNotFoundException {
         var requestingUserSpaces =
                 userService.getUserSpaces(SecurityContextUtils.getCurrentUserEmail());
         return ResponseEntity.ok().body(requestingUserSpaces);
     }
 
-    @GetMapping("/owned")
-    public ResponseEntity<List<SpaceInfoDto>> getSpacesOwnedByMe() throws NoSuchElementException {
+    @GetMapping("/info")
+    public ResponseEntity<SpaceInfoDto> getSpaceInfo(@RequestParam() String spaceHash) throws UserIsNotMemberOfSpaceException {
         var requestingUserSpaces =
-                spaceService.getSpacesOwnedByUser(SecurityContextUtils.getCurrentUserEmail());
+                spaceService.getSpaceInfo(spaceHash, SecurityContextUtils.getCurrentUserEmail());
+        return ResponseEntity.ok().body(requestingUserSpaces);
+    }
+
+    @GetMapping("/owned")
+    public ResponseEntity<List<SpaceInfoDto>> getSpacesOwnedByMe() {
+        var requestingUserSpaces =
+                spaceService.getSpacesInfoOwnedByUser(SecurityContextUtils.getCurrentUserEmail());
         return ResponseEntity.ok().body(requestingUserSpaces);
     }
 }
