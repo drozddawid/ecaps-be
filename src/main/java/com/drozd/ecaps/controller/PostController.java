@@ -1,6 +1,7 @@
 package com.drozd.ecaps.controller;
 
 import com.drozd.ecaps.exception.badargument.DisallowedTagsException;
+import com.drozd.ecaps.exception.badargument.InactiveSpaceException;
 import com.drozd.ecaps.exception.badargument.SpaceNotFoundException;
 import com.drozd.ecaps.exception.badargument.UserNotFoundException;
 import com.drozd.ecaps.model.post.dto.CreatePostDto;
@@ -24,14 +25,14 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping()
-    public ResponseEntity<PostDto> createPost(@RequestBody CreatePostDto postToCreate) throws UserNotFoundException, DisallowedTagsException, SpaceNotFoundException {
+    public ResponseEntity<PostDto> createPost(@RequestBody CreatePostDto postToCreate) throws UserNotFoundException, DisallowedTagsException, SpaceNotFoundException, InactiveSpaceException {
         var createdPost =
                 postService.addPost(postToCreate, SecurityContextUtils.getCurrentUserEmail());
         return ResponseEntity.ok().body(createdPost);
     }
 
     @PostMapping("/space")
-    public ResponseEntity<List<PostDto>> getSpacesPosts(@RequestBody GetSpacesPostsDto getSpacesPostsDto) throws SpaceNotFoundException {
+    public ResponseEntity<List<PostDto>> getSpacesPosts(@RequestBody GetSpacesPostsDto getSpacesPostsDto) throws SpaceNotFoundException, InactiveSpaceException {
         var spacesPosts = postService.getSpacesPosts(getSpacesPostsDto, SecurityContextUtils.getCurrentUserEmail());
         return ResponseEntity.ok().body(spacesPosts);
     }

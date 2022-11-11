@@ -1,6 +1,7 @@
 package com.drozd.ecaps.service;
 
 import com.drozd.ecaps.exception.badargument.DisallowedTagsException;
+import com.drozd.ecaps.exception.badargument.InactiveSpaceException;
 import com.drozd.ecaps.exception.badargument.SpaceNotFoundException;
 import com.drozd.ecaps.exception.badargument.UserNotFoundException;
 import com.drozd.ecaps.model.post.Post;
@@ -30,9 +31,9 @@ public class PostService {
     private final SpaceService spaceService;
 
     public PostDto addPost(CreatePostDto postToCreate, String authorEmail)
-            throws UserNotFoundException, SpaceNotFoundException, DisallowedTagsException {
+            throws UserNotFoundException, SpaceNotFoundException, DisallowedTagsException, InactiveSpaceException {
         var author = userService.getUser(authorEmail);
-        var space = spaceService.getSpaceById(postToCreate.getSpaceId());
+        var space = spaceService.checkIfSpaceIsActiveByIdAndGet(postToCreate.getSpaceId());
 
         final Set<EcapsTag> postTags = postToCreate.getTags();
         final Set<EcapsTag> allowedPostTags =
@@ -58,13 +59,15 @@ public class PostService {
         return new PostDto(postRepository.save(createdPost));
     }
 
-    public List<PostDto> getSpacesPosts(GetSpacesPostsDto spacesPosts, String askingUserEmail) throws SpaceNotFoundException {
+    public List<PostDto> getSpacesPosts(GetSpacesPostsDto spacesPosts, String askingUserEmail) throws SpaceNotFoundException, InactiveSpaceException {
         final Optional<Space> space = spaceService.getUserSpaces(askingUserEmail).stream()
                 .filter(s -> Objects.equals(s.getId(), spacesPosts.getSpaceId()))
                 .findFirst();
 
         if(space.isEmpty())
             throw new SpaceNotFoundException("User is not member of space with id " + spacesPosts.getSpaceId());
+
+        spaceService.checkIfSpaceIsActive(space.get());
 
         final PageRequest page = PageRequest.of(spacesPosts.getPageNumber(), spacesPosts.getPageSize(),
                 Sort.by("createdOn").descending());

@@ -1,4 +1,4 @@
-package com.drozd.ecaps.model.user.dto;
+package com.drozd.ecaps.model.user;
 
 import com.drozd.ecaps.model.SpaceManager;
 import com.drozd.ecaps.model.comment.Comment;
@@ -69,5 +69,9 @@ public class EcapsUser {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public void addSpace(Space space){
+            spaces.add(space);
     }
 }

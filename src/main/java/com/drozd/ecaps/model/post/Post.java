@@ -5,7 +5,7 @@ import com.drozd.ecaps.model.attachment.dto.GoogleAttachmentDto;
 import com.drozd.ecaps.model.comment.Comment;
 import com.drozd.ecaps.model.space.Space;
 import com.drozd.ecaps.model.tag.EcapsTag;
-import com.drozd.ecaps.model.user.dto.EcapsUser;
+import com.drozd.ecaps.model.user.EcapsUser;
 import lombok.*;
 import org.hibernate.Hibernate;
 

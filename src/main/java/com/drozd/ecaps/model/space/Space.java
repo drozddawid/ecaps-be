@@ -4,7 +4,7 @@ import com.drozd.ecaps.model.SpaceManager;
 import com.drozd.ecaps.model.SpaceManagerRole;
 import com.drozd.ecaps.model.post.Post;
 import com.drozd.ecaps.model.tag.EcapsTag;
-import com.drozd.ecaps.model.user.dto.EcapsUser;
+import com.drozd.ecaps.model.user.EcapsUser;
 import lombok.*;
 import org.hibernate.Hibernate;
 

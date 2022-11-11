@@ -2,7 +2,7 @@ package com.drozd.ecaps.service;
 
 import com.drozd.ecaps.exception.badargument.UserNotFoundException;
 import com.drozd.ecaps.model.space.dto.SpaceInfoDto;
-import com.drozd.ecaps.model.user.dto.EcapsUser;
+import com.drozd.ecaps.model.user.EcapsUser;
 import com.drozd.ecaps.repository.EcapsUserRepository;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import lombok.RequiredArgsConstructor;

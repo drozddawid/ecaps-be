@@ -1,5 +1,6 @@
 package com.drozd.ecaps.model.user.dto;
 
+import com.drozd.ecaps.model.user.EcapsUser;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

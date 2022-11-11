@@ -3,7 +3,7 @@ package com.drozd.ecaps.model.comment;
 import com.drozd.ecaps.model.attachment.GoogleAttachment;
 import com.drozd.ecaps.model.attachment.dto.GoogleAttachmentDto;
 import com.drozd.ecaps.model.post.Post;
-import com.drozd.ecaps.model.user.dto.EcapsUser;
+import com.drozd.ecaps.model.user.EcapsUser;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
