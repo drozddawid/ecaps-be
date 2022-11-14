@@ -10,4 +10,7 @@ import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long>, PagingAndSortingRepository<Post, Long> {
     List<Post> findBySpace(Space space, Pageable pageable);
+
+    boolean existsBySpaceAndTags_Name(Space space, String name);
+
 }

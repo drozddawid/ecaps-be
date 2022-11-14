@@ -3,6 +3,7 @@ package com.drozd.ecaps.controller;
 import com.drozd.ecaps.exception.UserIsNotMemberOfSpaceException;
 import com.drozd.ecaps.exception.badargument.InactiveSpaceException;
 import com.drozd.ecaps.exception.badargument.SpaceNotFoundException;
+import com.drozd.ecaps.exception.badargument.UserIsNotManagerOfSpaceException;
 import com.drozd.ecaps.exception.badargument.UserNotFoundException;
 import com.drozd.ecaps.model.space.dto.SpaceInfoDto;
 import com.drozd.ecaps.service.EcapsUserService;
@@ -37,6 +38,12 @@ public class SpaceController {
     @PostMapping(value = "/new-invitation-hash")
     public ResponseEntity<SpaceInfoDto> generateNewInvitationHash(@RequestBody Long spaceId) throws SpaceNotFoundException {
         var spaceInfo = spaceService.generateNewInvitationHash(spaceId);
+        return ResponseEntity.ok().body(spaceInfo);
+    }
+
+    @PutMapping("/change-settings")
+    public ResponseEntity<SpaceInfoDto> changeSpaceSettings(@RequestBody SpaceInfoDto propertiesToPut) throws SpaceNotFoundException, UserIsNotManagerOfSpaceException {
+        var spaceInfo = spaceService.changeSpaceSettings(propertiesToPut, SecurityContextUtils.getCurrentUserEmail());
         return ResponseEntity.ok().body(spaceInfo);
     }
 

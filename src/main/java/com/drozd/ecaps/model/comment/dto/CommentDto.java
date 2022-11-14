@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @NoArgsConstructor
@@ -16,12 +17,14 @@ import java.util.List;
 @Setter
 public class CommentDto {
     private Long id;
+    private LocalDateTime createdOn;
     private EcapsUserDto author;
     private String content;
     private List<GoogleAttachmentDto> googleAttachments;
 
     public CommentDto(Comment comment) {
         this(comment.getId(),
+                comment.getCreatedOn(),
                 new EcapsUserDto(comment.getAuthor()),
                 comment.getContent(),
                 comment.getGoogleAttachmentsDto());

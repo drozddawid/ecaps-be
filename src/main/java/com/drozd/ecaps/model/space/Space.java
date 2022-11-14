@@ -85,6 +85,7 @@ public class Space {
     }
 
     public void addUser(EcapsUser ecapsUser) {
+        ecapsUser.addSpace(this);
         users.add(ecapsUser);
     }
 

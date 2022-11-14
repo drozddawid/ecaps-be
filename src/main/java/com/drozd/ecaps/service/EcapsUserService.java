@@ -36,6 +36,9 @@ public class EcapsUserService {
                 .map(SpaceInfoDto::new)
                 .toList();
     }
+    
+    
+    
 
 
 }

@@ -9,9 +9,9 @@ import java.util.List;
 public record SpaceInfoDto(
         Long id,
         String name,
-        boolean isActive,
+        Boolean isActive,
         LocalDate createdOn,
-        boolean hasGoogleDriveConfigured,
+        Boolean hasGoogleDriveConfigured,
         String googleDriveApiKey,
         String invitationHash,
         String spaceHash,
