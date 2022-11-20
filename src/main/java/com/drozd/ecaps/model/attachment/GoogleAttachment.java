@@ -1,11 +1,8 @@
 package com.drozd.ecaps.model.attachment;
 
 import lombok.*;
-import org.hibernate.Hibernate;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.util.Objects;
 
@@ -16,18 +13,19 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class GoogleAttachment {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
 
-    private String path;
+    @Id
+    private String googleDriveId;
+
+    private String fileName;
+
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         GoogleAttachment that = (GoogleAttachment) o;
-        return id != null && Objects.equals(id, that.id);
+        return googleDriveId.equals(that.googleDriveId) && Objects.equals(fileName, that.fileName);
     }
 
     @Override

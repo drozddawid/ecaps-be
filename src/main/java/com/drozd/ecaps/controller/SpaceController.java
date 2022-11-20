@@ -1,10 +1,6 @@
 package com.drozd.ecaps.controller;
 
-import com.drozd.ecaps.exception.UserIsNotMemberOfSpaceException;
-import com.drozd.ecaps.exception.badargument.InactiveSpaceException;
-import com.drozd.ecaps.exception.badargument.SpaceNotFoundException;
-import com.drozd.ecaps.exception.badargument.UserIsNotManagerOfSpaceException;
-import com.drozd.ecaps.exception.badargument.UserNotFoundException;
+import com.drozd.ecaps.exception.badargument.*;
 import com.drozd.ecaps.model.space.dto.SpaceInfoDto;
 import com.drozd.ecaps.service.EcapsUserService;
 import com.drozd.ecaps.service.SpaceService;
@@ -32,6 +28,7 @@ public class SpaceController {
     @PostMapping("/join")
     public ResponseEntity<SpaceInfoDto> joinSpace(@RequestBody String invitationHash) throws UserNotFoundException, SpaceNotFoundException, InactiveSpaceException {
         var spaceInfo = spaceService.addUserToSpace(invitationHash, SecurityContextUtils.getCurrentUserEmail());
+        //TODO: handle react sending two requests to join and there is constraint validation exception when joining space
         return ResponseEntity.ok().body(spaceInfo);
     }
 
@@ -55,7 +52,7 @@ public class SpaceController {
     }
 
     @GetMapping("/info")
-    public ResponseEntity<SpaceInfoDto> getSpaceInfo(@RequestParam() String spaceHash) throws UserIsNotMemberOfSpaceException, InactiveSpaceException, SpaceNotFoundException {
+    public ResponseEntity<SpaceInfoDto> getSpaceInfo(@RequestParam() String spaceHash) throws UserIsNotMemberOfSpaceException{
         var requestingUserSpaces =
                 spaceService.getSpaceInfo(spaceHash, SecurityContextUtils.getCurrentUserEmail());
         return ResponseEntity.ok().body(requestingUserSpaces);

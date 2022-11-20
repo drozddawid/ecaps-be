@@ -39,7 +39,7 @@ public class Space {
 
     private boolean googleDriveConfigured = false;
 
-    private String googleDriveApiKey = null;
+    private String googleDriveAccountEmail = null;
 
     private String invitationHash;
 

@@ -1,8 +1,11 @@
 package com.drozd.ecaps.service;
 
-import com.drozd.ecaps.exception.UserIsNotMemberOfSpaceException;
+import com.drozd.ecaps.configuration.SpaceGoogleAuthorizationCodeDto;
+import com.drozd.ecaps.exception.BadArgumentException;
+import com.drozd.ecaps.exception.GoogleFileUploadException;
 import com.drozd.ecaps.exception.badargument.*;
 import com.drozd.ecaps.model.SpaceManagerRole;
+import com.drozd.ecaps.model.attachment.GoogleAttachment;
 import com.drozd.ecaps.model.comment.Comment;
 import com.drozd.ecaps.model.comment.dto.CommentDto;
 import com.drozd.ecaps.model.comment.dto.GetPostCommentsDto;
@@ -19,16 +22,25 @@ import com.drozd.ecaps.repository.CommentRepository;
 import com.drozd.ecaps.repository.PostRepository;
 import com.drozd.ecaps.repository.SpaceRepository;
 import com.drozd.ecaps.utils.HashGenerationUtils;
+import com.drozd.ecaps.utils.StringUtils;
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.services.drive.model.File;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.drozd.ecaps.utils.StringUtils.toEcapsSpaceFolderName;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +50,7 @@ public class SpaceService {
     private final SpaceRepository spaceRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final GoogleApiService googleApiService;
     private final TagService tagService;
 
     public SpaceInfoDto createSaveAndGetSpace(String spaceName, String ownerEmail) throws UserNotFoundException {
@@ -51,7 +64,6 @@ public class SpaceService {
     }
 
     public Space getUserSpaceOrThrowIfUserIsNotMember(String spaceHash, String askingUserEmail) throws UserIsNotMemberOfSpaceException {
-
         return getUserSpaces(askingUserEmail).stream()
                 .filter(s -> s.getSpaceHash().equals(spaceHash))
                 .findFirst()
@@ -74,7 +86,7 @@ public class SpaceService {
     public SpaceInfoDto addUserToSpace(String invitationHash, String userEmail) throws SpaceNotFoundException, UserNotFoundException, InactiveSpaceException {
         var user = userService.getUser(userEmail);
         var space = checkIfSpaceIsActiveByInvitationHashAndGet(invitationHash);
-        if(!user.getSpaces().contains(space)){
+        if (!user.getSpaces().contains(space)) {
             space.addUser(user);
             spaceRepository.save(space);
         }
@@ -186,11 +198,11 @@ public class SpaceService {
     }
 
     public PostDto addPost(CreatePostDto postToCreate, String authorEmail)
-            throws UserNotFoundException, SpaceNotFoundException, DisallowedTagsException, InactiveSpaceException, com.drozd.ecaps.exception.badargument.UserIsNotMemberOfSpaceException {
+            throws UserNotFoundException, SpaceNotFoundException, DisallowedTagsException, InactiveSpaceException, UserIsNotMemberOfSpaceException {
         var author = userService.getUser(authorEmail);
         var space = checkIfSpaceIsActiveByIdAndGet(postToCreate.getSpaceId());
         if (!author.getSpaces().contains(space)) {
-            throw new com.drozd.ecaps.exception.badargument.UserIsNotMemberOfSpaceException("User is not member of space. Post not added.");
+            throw new UserIsNotMemberOfSpaceException("User is not member of space. Post not added.");
         }
 
         final Set<EcapsTag> postTags = postToCreate.getTags();
@@ -215,6 +227,43 @@ public class SpaceService {
                 .setCreatedOn(LocalDateTime.now());
 
         return new PostDto(postRepository.save(createdPost));
+    }
+
+    public Post getPostById(Long postId) throws PostNotFoundException {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException("Post with id " + postId + " not found."));
+    }
+
+    public PostDto addPostAttachment(Long postId, String authorEmail, MultipartFile file) throws PostNotFoundException, UserIsNotPostAuthorException, SpaceHasNoGoogleDriveAccountConfiguredException, IOException, GoogleFileUploadException {
+        var post = getPostById(postId);
+        var space = post.getSpace();
+        if (!post.getAuthor().getEmail().equals(authorEmail))
+            throw new UserIsNotPostAuthorException("User " + authorEmail + " is not author of the post and can't add attachment to it.");
+
+        Credential credential = getSpaceCredential(space);
+
+        var uploadedFile = googleApiService.uploadFileToFolder(StringUtils.toEcapsSpaceFolderName(space.getName()), file.getOriginalFilename(), file.getContentType(), file.getInputStream(), credential);
+        if (uploadedFile == null)
+            throw new GoogleFileUploadException("Error occurred when uploading file " + file.getOriginalFilename() + " to Google Drive.");
+
+        post.getGoogleAttachments().add(new GoogleAttachment().setGoogleDriveId(uploadedFile.getId()).setFileName(uploadedFile.getName()));
+        post = postRepository.save(post);
+
+        return new PostDto(post);
+    }
+
+    private Credential getSpaceCredential(Space space) throws SpaceHasNoGoogleDriveAccountConfiguredException, IOException {
+        if (!space.isGoogleDriveConfigured())
+            throw new SpaceHasNoGoogleDriveAccountConfiguredException("Space " + space.getName() + " has no google drive account configured and you can't upload or download attachments.");
+
+        var credential = googleApiService.getCredential(space.getGoogleDriveAccountEmail());
+
+        if (credential == null) {
+            space.setGoogleDriveConfigured(false);
+            spaceRepository.save(space);
+            throw new SpaceHasNoGoogleDriveAccountConfiguredException("Space " + space.getName() + " has no google drive account configured and you can't upload or download attachments.");
+        }
+        return credential;
     }
 
     public List<PostDto> getSpacesPosts(GetSpacesPostsDto spacesPosts, String askingUserEmail) throws SpaceNotFoundException, InactiveSpaceException {
@@ -266,8 +315,7 @@ public class SpaceService {
     }
 
     private Post getPostIfUserIsMemberOfSpace(Long postId, EcapsUser user) throws PostNotFoundException, UserIsNotManagerOfSpaceException {
-        final Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFoundException("Post with id " + postId + " not found."));
+        final Post post = getPostById(postId);
         final Space space = post.getSpace();
         final var isUserSpaceMember = user.getSpaces().contains(space);
         if (!isUserSpaceMember)
@@ -278,5 +326,32 @@ public class SpaceService {
 
     public boolean doesAnyPostWithSpaceAndTagNameExist(Space space, String tagName) {
         return postRepository.existsBySpaceAndTags_Name(space, tagName);
+    }
+
+    public void authorizeAndSetSpaceDriveAccount(final SpaceGoogleAuthorizationCodeDto authorizationCode, final String requestOrigin) throws BadArgumentException, GeneralSecurityException, IOException {
+        final Space space = checkIfSpaceIsActiveByIdAndGet(authorizationCode.spaceId());
+
+        var driveAccountEmail = googleApiService.authorizeGoogleApiAuthorizationCodeAndGetDriveAccountEmail(authorizationCode, requestOrigin);
+
+        Credential credential = googleApiService.getCredential(driveAccountEmail);
+
+        googleApiService.createFolderOrGetIfAlreadyExists(credential, toEcapsSpaceFolderName(space.getName()));
+
+        if (space.isGoogleDriveConfigured() && !space.getGoogleDriveAccountEmail().equals(driveAccountEmail))
+            throw new SpaceHasAnotherGoogleDriveAccountConfiguredException("Space has another account already configured (" +
+                    space.getGoogleDriveAccountEmail() + "). You can reauthorize space only with this account.");
+
+        space.setGoogleDriveConfigured(true)
+                .setGoogleDriveAccountEmail(driveAccountEmail);
+
+        spaceRepository.save(space);
+    }
+
+    public File downloadPostAttachment(String askingUserEmail, Long postId, String fileId, OutputStream outputStream)
+            throws UserNotFoundException, PostNotFoundException, UserIsNotManagerOfSpaceException, IOException, SpaceHasNoGoogleDriveAccountConfiguredException {
+
+        final var space = getPostIfUserIsMemberOfSpace(postId, askingUserEmail).getSpace();
+        final Credential spaceCredential = getSpaceCredential(space);
+        return googleApiService.downloadFileToOutputStreamAndGetMetadata(fileId, spaceCredential, outputStream);
     }
 }

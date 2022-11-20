@@ -12,7 +12,7 @@ public record SpaceInfoDto(
         Boolean isActive,
         LocalDate createdOn,
         Boolean hasGoogleDriveConfigured,
-        String googleDriveApiKey,
+        String googleDriveAccountEmail,
         String invitationHash,
         String spaceHash,
         List<EcapsTag> allowedTags
@@ -24,7 +24,7 @@ public record SpaceInfoDto(
                 space.isActive(),
                 space.getCreatedOn(),
                 space.isGoogleDriveConfigured(),
-                space.getGoogleDriveApiKey(),
+                space.getGoogleDriveAccountEmail(),
                 space.getInvitationHash(),
                 space.getSpaceHash(),
                 space.getAllowedTags().stream().toList());
