@@ -29,8 +29,10 @@ public class Comment {
     @Column(name = "created_on")
     private LocalDateTime createdOn;
     @ManyToOne
+    @JoinColumn(name = "author_id")
     private EcapsUser author;
     @ManyToOne
+    @JoinColumn(name = "post_id")
     private Post post;
     @Column(length = 65535, columnDefinition = "TEXT")
     private String content;

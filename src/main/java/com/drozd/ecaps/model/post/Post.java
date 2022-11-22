@@ -50,12 +50,10 @@ public class Post {
     @ToString.Exclude
     private Set<EcapsTag> tags = new HashSet<>();
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "comment_id")
     @ToString.Exclude
     private Set<Comment> comments = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "g_attachment_id")
     @ToString.Exclude
     private Set<GoogleAttachment> googleAttachments = new HashSet<>();
 

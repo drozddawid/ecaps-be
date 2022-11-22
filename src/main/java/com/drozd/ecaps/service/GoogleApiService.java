@@ -156,6 +156,11 @@ public class GoogleApiService {
         return service.files().create(fileMetadata, mediaContent).execute();
     }
 
+    public void deleteFile(String fileId, Credential credential) throws IOException {
+        Drive drive = getDriveService(credential);
+        drive.files().delete(fileId).execute();
+    }
+
     private Drive getDriveService(Credential credential) {
         return new Drive.Builder(httpTransport, JSON_FACTORY, credential)
                 .setApplicationName(APPLICATION_NAME)

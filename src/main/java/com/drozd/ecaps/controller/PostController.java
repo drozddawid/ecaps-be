@@ -8,6 +8,7 @@ import com.drozd.ecaps.model.comment.dto.NewCommentDto;
 import com.drozd.ecaps.model.post.dto.CreatePostDto;
 import com.drozd.ecaps.model.post.dto.GetSpacesPostsDto;
 import com.drozd.ecaps.model.post.dto.PostDto;
+import com.drozd.ecaps.model.post.dto.UpdatePostDto;
 import com.drozd.ecaps.service.GoogleApiService;
 import com.drozd.ecaps.service.SpaceService;
 import com.drozd.ecaps.utils.SecurityContextUtils;
@@ -58,7 +59,7 @@ public class PostController {
     }
 
     @PostMapping("/upload-file")
-    public ResponseEntity<PostDto> uploadFile(@RequestParam Long postId, @RequestParam MultipartFile[] files) throws UserIsNotPostAuthorException, PostNotFoundException, GoogleFileUploadException, IOException, SpaceHasNoGoogleDriveAccountConfiguredException {
+    public ResponseEntity<PostDto> uploadFile(@RequestParam Long postId, @RequestParam MultipartFile[] files) throws UserIsNotPostAuthorException, PostNotFoundException, GoogleFileUploadException, IOException, SpaceHasNoGoogleDriveAccountConfiguredException, InactiveSpaceException {
         PostDto post = null;
         for(MultipartFile file : files){
             post = spaceService.addPostAttachment(postId, SecurityContextUtils.getCurrentUserEmail(), file);
@@ -75,4 +76,15 @@ public class PostController {
         response.flushBuffer();
     }
 
+    @PostMapping("update-post")
+    public ResponseEntity<PostDto> updatePost(@RequestBody UpdatePostDto updatePostDto) throws UserNotFoundException, UserIsNotPostAuthorException, PostNotFoundException, UserIsNotMemberOfSpaceException, DisallowedTagsException, InactiveSpaceException, IOException, SpaceHasNoGoogleDriveAccountConfiguredException, SpaceNotFoundException {
+        var newPost = spaceService.updatePost(updatePostDto, SecurityContextUtils.getCurrentUserEmail());
+        return ResponseEntity.ok(newPost);
+    }
+
+    @DeleteMapping("delete-post")
+    public ResponseEntity<String> deletePost(@RequestBody Long postId) throws UserIsNotPostAuthorException, PostNotFoundException, UserIsNotMemberOfSpaceException, InactiveSpaceException, IOException {
+        spaceService.deletePost(postId, SecurityContextUtils.getCurrentUserEmail());
+        return ResponseEntity.ok("\"Post deleted successfully\"");
+    }
 }
