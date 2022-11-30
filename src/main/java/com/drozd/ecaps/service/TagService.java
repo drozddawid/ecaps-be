@@ -30,4 +30,8 @@ public class TagService {
                 .map(this::getOrCreateEcapsTag)
                 .collect(Collectors.toSet());
     }
+
+    public List<EcapsTag> getTagsByIds(List<Long> ids){
+        return tagRepository.findByIdIn(ids);
+    }
 }

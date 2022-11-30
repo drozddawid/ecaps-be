@@ -5,10 +5,7 @@ import com.drozd.ecaps.exception.badargument.*;
 import com.drozd.ecaps.model.comment.dto.CommentDto;
 import com.drozd.ecaps.model.comment.dto.GetPostCommentsDto;
 import com.drozd.ecaps.model.comment.dto.NewCommentDto;
-import com.drozd.ecaps.model.post.dto.CreatePostDto;
-import com.drozd.ecaps.model.post.dto.GetSpacesPostsDto;
-import com.drozd.ecaps.model.post.dto.PostDto;
-import com.drozd.ecaps.model.post.dto.UpdatePostDto;
+import com.drozd.ecaps.model.post.dto.*;
 import com.drozd.ecaps.service.GoogleApiService;
 import com.drozd.ecaps.service.SpaceService;
 import com.drozd.ecaps.utils.SecurityContextUtils;
@@ -46,6 +43,12 @@ public class PostController {
         return ResponseEntity.ok().body(spacesPosts);
     }
 
+    @PostMapping("/get-by-tags")
+    public ResponseEntity<List<PostDto>> getSpacesPosts(@RequestBody GetSpacesPostsFilteredByTagsDto getSpacesPostsDto) throws SpaceNotFoundException, InactiveSpaceException {
+        var spacesPosts = spaceService.getSpacesPostsFilteringByTags(getSpacesPostsDto, SecurityContextUtils.getCurrentUserEmail());
+        return ResponseEntity.ok().body(spacesPosts);
+    }
+
     @PostMapping("/new-comment")
     public ResponseEntity<CommentDto> newComment(@RequestBody NewCommentDto newComment) throws UserNotFoundException, PostNotFoundException, UserIsNotManagerOfSpaceException {
         final var comment = spaceService.addComment(newComment, SecurityContextUtils.getCurrentUserEmail());
@@ -76,13 +79,13 @@ public class PostController {
         response.flushBuffer();
     }
 
-    @PostMapping("update-post")
+    @PostMapping("/update-post")
     public ResponseEntity<PostDto> updatePost(@RequestBody UpdatePostDto updatePostDto) throws UserNotFoundException, UserIsNotPostAuthorException, PostNotFoundException, UserIsNotMemberOfSpaceException, DisallowedTagsException, InactiveSpaceException, IOException, SpaceHasNoGoogleDriveAccountConfiguredException, SpaceNotFoundException {
         var newPost = spaceService.updatePost(updatePostDto, SecurityContextUtils.getCurrentUserEmail());
         return ResponseEntity.ok(newPost);
     }
 
-    @DeleteMapping("delete-post")
+    @DeleteMapping("/delete-post")
     public ResponseEntity<String> deletePost(@RequestBody Long postId) throws UserIsNotPostAuthorException, PostNotFoundException, UserIsNotMemberOfSpaceException, InactiveSpaceException, IOException {
         spaceService.deletePost(postId, SecurityContextUtils.getCurrentUserEmail());
         return ResponseEntity.ok("\"Post deleted successfully\"");

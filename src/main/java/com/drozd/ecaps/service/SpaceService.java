@@ -11,10 +11,7 @@ import com.drozd.ecaps.model.comment.dto.CommentDto;
 import com.drozd.ecaps.model.comment.dto.GetPostCommentsDto;
 import com.drozd.ecaps.model.comment.dto.NewCommentDto;
 import com.drozd.ecaps.model.post.Post;
-import com.drozd.ecaps.model.post.dto.CreatePostDto;
-import com.drozd.ecaps.model.post.dto.GetSpacesPostsDto;
-import com.drozd.ecaps.model.post.dto.PostDto;
-import com.drozd.ecaps.model.post.dto.UpdatePostDto;
+import com.drozd.ecaps.model.post.dto.*;
 import com.drozd.ecaps.model.space.Space;
 import com.drozd.ecaps.model.space.dto.SpaceInfoDto;
 import com.drozd.ecaps.model.tag.EcapsTag;
@@ -90,6 +87,7 @@ public class SpaceService {
         if (!user.getSpaces().contains(space)) {
             space.addUser(user);
             spaceRepository.save(space);
+            spaceRepository.flush();
         }
         return new SpaceInfoDto(space);
     }
@@ -379,6 +377,32 @@ public class SpaceService {
                 .toList();
     }
 
+    public List<PostDto> getSpacesPostsFilteringByTags(GetSpacesPostsFilteredByTagsDto spacesPosts, String askingUserEmail) throws SpaceNotFoundException, InactiveSpaceException {
+        if(spacesPosts.getTags() == null || spacesPosts.getTags().isEmpty())
+            return getSpacesPosts(new GetSpacesPostsDto(spacesPosts), askingUserEmail);
+
+        var tags = tagService.getTagsByIds(spacesPosts.getTags().stream().map(EcapsTag::getId).toList());
+
+        if(tags.isEmpty())
+            return getSpacesPosts(new GetSpacesPostsDto(spacesPosts), askingUserEmail);
+
+        final Optional<Space> spaceOptional = getUserSpaces(askingUserEmail).stream()
+                .filter(s -> Objects.equals(s.getId(), spacesPosts.getSpaceId()))
+                .findFirst();
+
+        if (spaceOptional.isEmpty())
+            throw new SpaceNotFoundException("User is not member of space with id " + spacesPosts.getSpaceId());
+
+        final Space space = spaceOptional.get();
+        checkIfSpaceIsActive(space);
+
+        final Sort sort = Sort.by(Sort.Direction.DESC, "createdOn");
+
+        return postRepository.findBySpaceAndTagsAsStream(space, tags, spacesPosts.getPageNumber(), spacesPosts.getPageSize(), sort)
+                .map(PostDto::new)
+                .toList();
+    }
+
     public CommentDto addComment(NewCommentDto comment, String authorEmail) throws UserNotFoundException, PostNotFoundException, UserIsNotManagerOfSpaceException {
         final EcapsUser user = userService.getUser(authorEmail);
         final Post post = getPostIfUserIsMemberOfSpace(comment.getPostId(), user);
@@ -399,7 +423,7 @@ public class SpaceService {
         final Post post = getPostIfUserIsMemberOfSpace(postComments.getPostId(), askingUserEmail);
 
         final PageRequest page = PageRequest.of(postComments.getPageNumber(), postComments.getPageSize(),
-                Sort.by("createdOn").descending());
+                Sort.by("createdOn").ascending());
         return commentRepository.findByPost(post, page).stream()
                 .map(CommentDto::new)
                 .toList();

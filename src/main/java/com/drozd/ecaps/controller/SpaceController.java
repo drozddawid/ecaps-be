@@ -28,7 +28,6 @@ public class SpaceController {
     @PostMapping("/join")
     public ResponseEntity<SpaceInfoDto> joinSpace(@RequestBody String invitationHash) throws UserNotFoundException, SpaceNotFoundException, InactiveSpaceException {
         var spaceInfo = spaceService.addUserToSpace(invitationHash, SecurityContextUtils.getCurrentUserEmail());
-        //TODO: handle react sending two requests to join and there is constraint validation exception when joining space
         return ResponseEntity.ok().body(spaceInfo);
     }
 

@@ -7,14 +7,12 @@ import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.InputStreamContent;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +70,14 @@ public class GoogleApiService {
 
     }
 
+    private GoogleAuthorizationCodeFlow getOfflineAuthorizationFlowScopesDriveFile(List<String> scopes) throws IOException {
+        return new GoogleAuthorizationCodeFlow.Builder(
+                httpTransport, JSON_FACTORY, clientSecrets, scopes)
+                .setDataStoreFactory(fileDataStoreFactory)
+                .setAccessType("offline")
+                .build();
+    }
+
     public File createFolderOrGetIfAlreadyExists(Credential credential, String folderName) throws IOException {
         Drive drive = getDriveService(credential);
 
@@ -92,38 +98,10 @@ public class GoogleApiService {
 
     }
 
-    private GoogleAuthorizationCodeFlow getOfflineAuthorizationFlowScopesDriveFile(List<String> scopes) throws IOException {
-        return new GoogleAuthorizationCodeFlow.Builder(
-                httpTransport, JSON_FACTORY, clientSecrets, scopes)
-                .setDataStoreFactory(fileDataStoreFactory)
-                .setAccessType("offline")
-                .build();
-    }
-
     @Nullable
     public Credential getCredential(String spaceDriveAccountEmail) throws IOException {
         return getOfflineAuthorizationFlowScopesDriveFile(DRIVE_FILE_SCOPES)
                 .loadCredential(spaceDriveAccountEmail);
-    }
-
-    public List<String> getFiles(String userId) throws IOException, GeneralSecurityException {
-        // Build a new authorized API client service.
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        Drive service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, /*put Credential here*/ null)
-                .setApplicationName(APPLICATION_NAME)
-                .build();
-        // Print the names and IDs for up to 10 files.
-        FileList result = service.files().list()
-                .setPageSize(10)
-                .setFields("nextPageToken, files(id, name)")
-                .execute();
-
-        List<File> files = result.getFiles();
-        if (files == null || files.isEmpty()) {
-            return List.of("No files found.");
-        } else {
-            return files.stream().map(File::getName).toList();
-        }
     }
 
     public File uploadFileToFolder(String folderName, String fileName, String contentType, InputStream fileContent, Credential credential) throws IOException {
