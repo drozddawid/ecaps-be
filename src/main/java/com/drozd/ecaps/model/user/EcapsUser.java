@@ -54,7 +54,6 @@ public class EcapsUser {
                 payload.getEmail()
                         .orElseThrow(() -> new IllegalArgumentException("User must have email assigned."));
         this.pictureURL = payload.getPictureUrl().orElse("");
-        // TODO: 10/29/22 put default user picture link here, link must depend on env variable (different for local and prod)
         this.createdOn = LocalDate.now();
     }
 

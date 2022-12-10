@@ -49,11 +49,11 @@ public class Post {
     )
     @ToString.Exclude
     private Set<EcapsTag> tags = new HashSet<>();
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<Comment> comments = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<GoogleAttachment> googleAttachments = new HashSet<>();
 

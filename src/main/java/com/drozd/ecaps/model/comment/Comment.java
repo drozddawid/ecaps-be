@@ -1,7 +1,5 @@
 package com.drozd.ecaps.model.comment;
 
-import com.drozd.ecaps.model.attachment.GoogleAttachment;
-import com.drozd.ecaps.model.attachment.dto.GoogleAttachmentDto;
 import com.drozd.ecaps.model.post.Post;
 import com.drozd.ecaps.model.user.EcapsUser;
 import lombok.*;
@@ -9,10 +7,7 @@ import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 
 @Entity
@@ -37,15 +32,15 @@ public class Comment {
     @Column(length = 65535, columnDefinition = "TEXT")
     private String content;
 
-    @OneToMany()
-    @ToString.Exclude
-    private Set<GoogleAttachment> googleAttachments = new HashSet<>();
-
-    public List<GoogleAttachmentDto> getGoogleAttachmentsDto() {
-        return this.getGoogleAttachments().stream()
-                .map(GoogleAttachmentDto::new)
-                .toList();
-    }
+//    @OneToMany(cascade = CascadeType.ALL)
+//    @ToString.Exclude
+//    private Set<GoogleAttachment> googleAttachments = new HashSet<>();
+//
+//    public List<GoogleAttachmentDto> getGoogleAttachmentsDto() {
+//        return this.getGoogleAttachments().stream()
+//                .map(GoogleAttachmentDto::new)
+//                .toList();
+//    }
 
     @Override
     public boolean equals(Object o) {

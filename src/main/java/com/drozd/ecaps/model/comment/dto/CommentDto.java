@@ -1,6 +1,5 @@
 package com.drozd.ecaps.model.comment.dto;
 
-import com.drozd.ecaps.model.attachment.dto.GoogleAttachmentDto;
 import com.drozd.ecaps.model.comment.Comment;
 import com.drozd.ecaps.model.user.dto.EcapsUserDto;
 import lombok.AllArgsConstructor;
@@ -9,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,13 +18,14 @@ public class CommentDto {
     private LocalDateTime createdOn;
     private EcapsUserDto author;
     private String content;
-    private List<GoogleAttachmentDto> googleAttachments;
+//    private List<GoogleAttachmentDto> googleAttachments;
 
     public CommentDto(Comment comment) {
         this(comment.getId(),
                 comment.getCreatedOn(),
                 new EcapsUserDto(comment.getAuthor()),
-                comment.getContent(),
-                comment.getGoogleAttachmentsDto());
+                comment.getContent()
+//                comment.getGoogleAttachmentsDto()
+                );
     }
 }

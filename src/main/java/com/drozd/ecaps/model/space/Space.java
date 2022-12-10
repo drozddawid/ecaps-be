@@ -53,7 +53,7 @@ public class Space {
     @ToString.Exclude
     private Set<EcapsUser> users = new HashSet<>();
 
-    @OneToMany(cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "space", cascade = {CascadeType.ALL})
     @ToString.Exclude
     private Set<SpaceManager> spaceManagers = new HashSet<>();
 

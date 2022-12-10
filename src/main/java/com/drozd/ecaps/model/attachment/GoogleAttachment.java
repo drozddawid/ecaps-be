@@ -1,9 +1,12 @@
 package com.drozd.ecaps.model.attachment;
 
+import com.drozd.ecaps.model.post.Post;
 import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import java.util.Objects;
 
 @Entity
@@ -19,6 +22,9 @@ public class GoogleAttachment {
 
     private String fileName;
 
+    @ManyToOne()
+    @JoinColumn(name = "post_id")
+    private Post post;
 
     @Override
     public boolean equals(Object o) {
