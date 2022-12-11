@@ -20,7 +20,6 @@ import java.security.GeneralSecurityException;
 @RequiredArgsConstructor
 public class GoogleServicesConfiguration {
     public static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
-    public static final String APPLICATION_NAME = "ecaps"; //TODO: make APPLICATION_NAME property (application.properties or sth like that)
     public static final String TOKENS_DIRECTORY_PATH = "tokens";
 
     private final SecretConfigProperties secretConfigProperties;

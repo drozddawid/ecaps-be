@@ -1,5 +1,6 @@
 package com.drozd.ecaps;
 
+import com.drozd.ecaps.configuration.ConfigProperties;
 import com.drozd.ecaps.configuration.SecretConfigProperties;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.apache.v2.ApacheHttpTransport;
@@ -12,7 +13,7 @@ import org.springframework.context.annotation.Bean;
 import java.util.List;
 
 @SpringBootApplication
-@EnableConfigurationProperties(SecretConfigProperties.class)
+@EnableConfigurationProperties({SecretConfigProperties.class, ConfigProperties.class})
 public class EcapsApplication {
 
 	public static void main(String[] args) {

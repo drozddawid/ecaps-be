@@ -1,5 +1,6 @@
 package com.drozd.ecaps.service;
 
+import com.drozd.ecaps.configuration.ConfigProperties;
 import com.drozd.ecaps.configuration.SpaceGoogleAuthorizationCodeDto;
 import com.drozd.ecaps.exception.BadArgumentException;
 import com.drozd.ecaps.security.google.identity.GoogleIdentityVerificationService;
@@ -26,7 +27,6 @@ import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.drozd.ecaps.configuration.GoogleServicesConfiguration.APPLICATION_NAME;
 import static com.drozd.ecaps.configuration.GoogleServicesConfiguration.JSON_FACTORY;
 
 @Service
@@ -40,7 +40,7 @@ public class GoogleApiService {
     private final GoogleClientSecrets clientSecrets;
     private final NetHttpTransport httpTransport;
     private final GoogleIdentityVerificationService verificationService;
-
+    private final ConfigProperties configProperties;
     private final Logger LOG = LoggerFactory.getLogger(GoogleApiService.class);
 
 
@@ -141,7 +141,7 @@ public class GoogleApiService {
 
     private Drive getDriveService(Credential credential) {
         return new Drive.Builder(httpTransport, JSON_FACTORY, credential)
-                .setApplicationName(APPLICATION_NAME)
+                .setApplicationName(configProperties.appName())
                 .build();
     }
 

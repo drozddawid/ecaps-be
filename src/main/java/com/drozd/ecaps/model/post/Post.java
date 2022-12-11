@@ -43,8 +43,8 @@ public class Post {
     @ManyToMany
     @JoinTable(
             name = "post_tag",
-            joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "post_id", referencedColumnName = "id"),
+            joinColumns = @JoinColumn(name = "post_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"),
             indexes = {@Index(name = "tag_id_index", columnList = "tag_id")}
     )
     @ToString.Exclude
