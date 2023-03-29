@@ -1,6 +1,6 @@
 package com.drozd.ecaps.repository;
 
-import com.drozd.ecaps.model.user.dto.EcapsUser;
+import com.drozd.ecaps.model.user.EcapsUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

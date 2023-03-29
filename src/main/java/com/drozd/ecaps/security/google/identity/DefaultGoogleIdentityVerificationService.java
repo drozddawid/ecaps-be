@@ -12,7 +12,6 @@ import java.security.GeneralSecurityException;
 @RequiredArgsConstructor
 public class DefaultGoogleIdentityVerificationService implements GoogleIdentityVerificationService {
     private final GoogleIdTokenVerifier idTokenVerifier;
-
     @Override
     public GoogleIdToken verify(String googleJwtToken) throws GeneralSecurityException, IOException {
         return idTokenVerifier.verify(googleJwtToken);

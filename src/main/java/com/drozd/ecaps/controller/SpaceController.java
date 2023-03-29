@@ -1,7 +1,6 @@
 package com.drozd.ecaps.controller;
 
-import com.drozd.ecaps.exception.UserIsNotMemberOfSpaceException;
-import com.drozd.ecaps.exception.badargument.UserNotFoundException;
+import com.drozd.ecaps.exception.badargument.*;
 import com.drozd.ecaps.model.space.dto.SpaceInfoDto;
 import com.drozd.ecaps.service.EcapsUserService;
 import com.drozd.ecaps.service.SpaceService;
@@ -26,6 +25,24 @@ public class SpaceController {
         return ResponseEntity.ok().body(createdSpace);
     }
 
+    @PostMapping("/join")
+    public ResponseEntity<SpaceInfoDto> joinSpace(@RequestBody String invitationHash) throws UserNotFoundException, SpaceNotFoundException, InactiveSpaceException {
+        var spaceInfo = spaceService.addUserToSpace(invitationHash, SecurityContextUtils.getCurrentUserEmail());
+        return ResponseEntity.ok().body(spaceInfo);
+    }
+
+    @PostMapping(value = "/new-invitation-hash")
+    public ResponseEntity<SpaceInfoDto> generateNewInvitationHash(@RequestBody Long spaceId) throws SpaceNotFoundException {
+        var spaceInfo = spaceService.generateNewInvitationHash(spaceId);
+        return ResponseEntity.ok().body(spaceInfo);
+    }
+
+    @PutMapping("/change-settings")
+    public ResponseEntity<SpaceInfoDto> changeSpaceSettings(@RequestBody SpaceInfoDto propertiesToPut) throws SpaceNotFoundException, UserIsNotManagerOfSpaceException {
+        var spaceInfo = spaceService.changeSpaceSettings(propertiesToPut, SecurityContextUtils.getCurrentUserEmail());
+        return ResponseEntity.ok().body(spaceInfo);
+    }
+
     @GetMapping("/my")
     public ResponseEntity<List<SpaceInfoDto>> getMySpaces() throws UserNotFoundException {
         var requestingUserSpaces =
@@ -34,7 +51,7 @@ public class SpaceController {
     }
 
     @GetMapping("/info")
-    public ResponseEntity<SpaceInfoDto> getSpaceInfo(@RequestParam() String spaceHash) throws UserIsNotMemberOfSpaceException {
+    public ResponseEntity<SpaceInfoDto> getSpaceInfo(@RequestParam() String spaceHash) throws UserIsNotMemberOfSpaceException{
         var requestingUserSpaces =
                 spaceService.getSpaceInfo(spaceHash, SecurityContextUtils.getCurrentUserEmail());
         return ResponseEntity.ok().body(requestingUserSpaces);
@@ -43,7 +60,14 @@ public class SpaceController {
     @GetMapping("/owned")
     public ResponseEntity<List<SpaceInfoDto>> getSpacesOwnedByMe() {
         var requestingUserSpaces =
-                spaceService.getSpacesInfoOwnedByUser(SecurityContextUtils.getCurrentUserEmail());
+                spaceService.getSpacesOwnedByUser(SecurityContextUtils.getCurrentUserEmail());
+        return ResponseEntity.ok().body(requestingUserSpaces);
+    }
+
+    @GetMapping("/managed")
+    public ResponseEntity<List<SpaceInfoDto>> getSpacesManagedByMe() {
+        var requestingUserSpaces =
+                spaceService.getSpacesManagedByUser(SecurityContextUtils.getCurrentUserEmail());
         return ResponseEntity.ok().body(requestingUserSpaces);
     }
 }

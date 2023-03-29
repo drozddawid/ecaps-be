@@ -36,13 +36,12 @@ public class JwtTokenAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        final String requestHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if(!StringUtils.hasLength(requestHeader) || !requestHeader.startsWith(AUTH_HEADER_PREFIX)){
+        final String requestAuthorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if(!StringUtils.hasLength(requestAuthorization) || !requestAuthorization.startsWith(AUTH_HEADER_PREFIX)){
             filterChain.doFilter(request, response);
             return;
         }
-
-        final String authorizationHeader = requestHeader.substring(AUTH_HEADER_PREFIX.length());
+        final String authorizationHeader = requestAuthorization.substring(AUTH_HEADER_PREFIX.length());
         try {
             final GoogleIdToken idToken = verificationService.verify(authorizationHeader);
             List<SimpleGrantedAuthority> grantedAuthorities = new ArrayList<>();
@@ -60,6 +59,4 @@ public class JwtTokenAuthFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
-
-
 }

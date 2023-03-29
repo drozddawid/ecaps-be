@@ -17,7 +17,7 @@ public class TagService {
     public EcapsTag getOrCreateEcapsTag(String tagName) {
         new EcapsTag().setName(tagName.toLowerCase());
         return tagRepository.findByNameIgnoreCase(tagName)
-                .orElse(tagRepository.save(new EcapsTag().setName(tagName.toLowerCase())));
+                .orElseGet(() -> tagRepository.save(new EcapsTag().setName(tagName.toLowerCase())));
     }
 
     public List<EcapsTag> getOrCreateEcapsTagsList(List<String> tagNames){
@@ -29,5 +29,9 @@ public class TagService {
         return tagNames.stream()
                 .map(this::getOrCreateEcapsTag)
                 .collect(Collectors.toSet());
+    }
+
+    public List<EcapsTag> getTagsByIds(List<Long> ids){
+        return tagRepository.findByIdIn(ids);
     }
 }

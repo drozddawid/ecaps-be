@@ -10,13 +10,19 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SpaceRepository extends JpaRepository<Space, Long>,
         QuerydslPredicateExecutor<Space> {
+    Optional<Space> findBySpaceHash(String spaceHash);
     boolean existsByInvitationHash(String invitationHash);
 
     boolean existsBySpaceHash(String spaceHash);
+
+    Optional<Space> findByInvitationHash(String invitationHash);
+
+
 
     default List<Space> getSpacesOwnedByUser(String email) {
         var list = new ArrayList<Space>();

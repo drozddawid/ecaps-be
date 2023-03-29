@@ -2,8 +2,9 @@ package com.drozd.ecaps.service;
 
 import com.drozd.ecaps.exception.badargument.UserNotFoundException;
 import com.drozd.ecaps.model.space.dto.SpaceInfoDto;
-import com.drozd.ecaps.model.user.dto.EcapsUser;
+import com.drozd.ecaps.model.user.EcapsUser;
 import com.drozd.ecaps.repository.EcapsUserRepository;
+import com.drozd.ecaps.utils.GoogleIdTokenPayloadUtils;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,12 +23,16 @@ public class EcapsUserService {
 
     public void saveUser(GoogleIdToken.Payload googleIdTokenPayload){
         final String userEmail = googleIdTokenPayload.getEmail();
+        EcapsUser user;
         try{
-            getUser(userEmail);
+            user = getUser(userEmail);
+            new GoogleIdTokenPayloadUtils(googleIdTokenPayload)
+                    .getPictureUrl()
+                            .ifPresent(user::setPictureURL);
         }catch(UserNotFoundException e){
-            var user = new EcapsUser(googleIdTokenPayload);
-            userRepository.save(user);
+            user = new EcapsUser(googleIdTokenPayload);
         }
+        userRepository.save(user);
     }
 
     public List<SpaceInfoDto> getUserSpaces(String email) throws UserNotFoundException{
@@ -36,6 +41,9 @@ public class EcapsUserService {
                 .map(SpaceInfoDto::new)
                 .toList();
     }
+    
+    
+    
 
 
 }

@@ -18,4 +18,11 @@ public class GetSpacesPostsDto {
     private Integer pageNumber;
     @NotNull
     private Integer pageSize;
+
+
+    public GetSpacesPostsDto(GetSpacesPostsFilteredByTagsDto getSpacesPostsFilteredByTagsDto) {
+        this.spaceId = getSpacesPostsFilteredByTagsDto.getSpaceId();
+        this.pageNumber = getSpacesPostsFilteredByTagsDto.getPageNumber();
+        this.pageSize = getSpacesPostsFilteredByTagsDto.getPageSize();
+    }
 }

@@ -1,4 +1,4 @@
-package com.drozd.ecaps.model.user.dto;
+package com.drozd.ecaps.model.user;
 
 import com.drozd.ecaps.model.SpaceManager;
 import com.drozd.ecaps.model.comment.Comment;
@@ -54,7 +54,6 @@ public class EcapsUser {
                 payload.getEmail()
                         .orElseThrow(() -> new IllegalArgumentException("User must have email assigned."));
         this.pictureURL = payload.getPictureUrl().orElse("");
-        // TODO: 10/29/22 put default user picture link here, link must depend on env variable (different for local and prod)
         this.createdOn = LocalDate.now();
     }
 
@@ -69,5 +68,9 @@ public class EcapsUser {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public void addSpace(Space space){
+            spaces.add(space);
     }
 }

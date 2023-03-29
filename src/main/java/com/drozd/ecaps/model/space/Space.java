@@ -4,7 +4,7 @@ import com.drozd.ecaps.model.SpaceManager;
 import com.drozd.ecaps.model.SpaceManagerRole;
 import com.drozd.ecaps.model.post.Post;
 import com.drozd.ecaps.model.tag.EcapsTag;
-import com.drozd.ecaps.model.user.dto.EcapsUser;
+import com.drozd.ecaps.model.user.EcapsUser;
 import lombok.*;
 import org.hibernate.Hibernate;
 
@@ -39,7 +39,7 @@ public class Space {
 
     private boolean googleDriveConfigured = false;
 
-    private String googleDriveApiKey = null;
+    private String googleDriveAccountEmail = null;
 
     private String invitationHash;
 
@@ -53,7 +53,7 @@ public class Space {
     @ToString.Exclude
     private Set<EcapsUser> users = new HashSet<>();
 
-    @OneToMany(cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "space", cascade = {CascadeType.ALL})
     @ToString.Exclude
     private Set<SpaceManager> spaceManagers = new HashSet<>();
 
@@ -85,6 +85,7 @@ public class Space {
     }
 
     public void addUser(EcapsUser ecapsUser) {
+        ecapsUser.addSpace(this);
         users.add(ecapsUser);
     }
 

@@ -12,13 +12,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GoogleAttachmentDto {
-    private Long id;
-    private String path;
+    private String googleDriveId;
     private String fileName;
 
     public GoogleAttachmentDto(GoogleAttachment attachment) {
-        this(attachment.getId(),
-                attachment.getPath(),
-                attachment.getPath().substring(attachment.getPath().lastIndexOf("/")));
+        this(attachment.getGoogleDriveId(),
+                attachment.getFileName());
     }
 }

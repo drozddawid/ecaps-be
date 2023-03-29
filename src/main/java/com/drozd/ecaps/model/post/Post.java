@@ -5,7 +5,7 @@ import com.drozd.ecaps.model.attachment.dto.GoogleAttachmentDto;
 import com.drozd.ecaps.model.comment.Comment;
 import com.drozd.ecaps.model.space.Space;
 import com.drozd.ecaps.model.tag.EcapsTag;
-import com.drozd.ecaps.model.user.dto.EcapsUser;
+import com.drozd.ecaps.model.user.EcapsUser;
 import lombok.*;
 import org.hibernate.Hibernate;
 
@@ -43,19 +43,17 @@ public class Post {
     @ManyToMany
     @JoinTable(
             name = "post_tag",
-            joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "post_id", referencedColumnName = "id"),
+            joinColumns = @JoinColumn(name = "post_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"),
             indexes = {@Index(name = "tag_id_index", columnList = "tag_id")}
     )
     @ToString.Exclude
     private Set<EcapsTag> tags = new HashSet<>();
-    @OneToMany()
-    @JoinColumn(name = "comment_id")
+    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<Comment> comments = new HashSet<>();
 
-    @OneToMany()
-    @JoinColumn(name = "g_attachment_id")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<GoogleAttachment> googleAttachments = new HashSet<>();
 
@@ -76,5 +74,10 @@ public class Post {
         return this.getGoogleAttachments().stream()
                 .map(GoogleAttachmentDto::new)
                 .collect(Collectors.toSet());
+    }
+
+    public boolean addComment(Comment comment){
+        comment.setPost(this);
+        return comments.add(comment);
     }
 }

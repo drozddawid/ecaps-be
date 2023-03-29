@@ -9,10 +9,10 @@ import java.util.List;
 public record SpaceInfoDto(
         Long id,
         String name,
-        boolean isActive,
+        Boolean isActive,
         LocalDate createdOn,
-        boolean hasGoogleDriveConfigured,
-        String googleDriveApiKey,
+        Boolean hasGoogleDriveConfigured,
+        String googleDriveAccountEmail,
         String invitationHash,
         String spaceHash,
         List<EcapsTag> allowedTags
@@ -24,7 +24,7 @@ public record SpaceInfoDto(
                 space.isActive(),
                 space.getCreatedOn(),
                 space.isGoogleDriveConfigured(),
-                space.getGoogleDriveApiKey(),
+                space.getGoogleDriveAccountEmail(),
                 space.getInvitationHash(),
                 space.getSpaceHash(),
                 space.getAllowedTags().stream().toList());

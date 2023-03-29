@@ -1,6 +1,8 @@
-package com.drozd.ecaps.exception;
+package com.drozd.ecaps.exception.badargument;
 
-public class UserIsNotMemberOfSpaceException extends BadArgumentException{
+import com.drozd.ecaps.exception.BadArgumentException;
+
+public class UserIsNotMemberOfSpaceException extends BadArgumentException {
     public UserIsNotMemberOfSpaceException() {
     }
 
